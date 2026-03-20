@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Feedback{% endblock %}
+{% block hero_title %}Partagez votre retour sur {{ training.titre }}{% endblock %}
+{% block hero_copy %}Capitalisez sur l'experience vecue pour aider a mieux qualifier les prochaines sessions.{% endblock %}
+{% block content %}
+<section class="panel panel-narrow reveal-on-load">
+    <div class="panel-head">
+        <h3>Feedback formation</h3>
+        <span class="panel-kicker">{{ training.organisme }}</span>
+    </div>
+        <form method="post" enctype="multipart/form-data" class="stack-md">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.commentaire.label(class_='form-label') }}
+            {{ form.commentaire(class_='form-control', rows='6', placeholder='Ce qui a ete utile, ce qui peut etre ameliore, etc.') }}
+        </div>
+        <div class="form-group">
+            {{ form.fichier.label(class_='form-label') }}
+            {{ form.fichier(class_='form-control') }}
+        </div>
+        {{ form.submit(class_='btn btn-primary') }}
+    </form>
+</section>
+{% endblock %}

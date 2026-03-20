@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Catalogue{% endblock %}
+{% block hero_title %}Explorez les formations disponibles{% endblock %}
+{% block hero_copy %}Reperez rapidement les programmes pertinents et lancez une demande en quelques secondes.{% endblock %}
+{% block content %}
+<section class="section-head reveal-on-load">
+    <div>
+        <p class="eyebrow">Catalogue</p>
+        <h2>Formations disponibles</h2>
+    </div>
+</section>
+
+<div class="grid cards-grid reveal-on-load">
+    {% for training in trainings %}
+    <article class="training-card">
+        <div class="training-card-top">
+            <span class="tag">{{ training.organisme }}</span>
+            <h3>{{ training.titre }}</h3>
+        </div>
+        <p>{{ training.description }}</p>
+        <div class="inline-actions">
+            <a class="btn btn-primary" href="{{ url_for('employee.demande', training_id=training.id) }}">Demander</a>
+        </div>
+    </article>
+    {% else %}
+    <div class="empty-state">Aucune formation n'est disponible pour le moment.</div>
+    {% endfor %}
+</div>
+{% endblock %}

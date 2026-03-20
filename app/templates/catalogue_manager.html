@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Gestion Catalogue{% endblock %}
+{% block hero_title %}Construisez un catalogue clair et actionnable{% endblock %}
+{% block hero_copy %}Ajoutez les formations et accedez rapidement a la gestion des sessions associees.{% endblock %}
+{% block content %}
+<div class="content-grid two-columns">
+    <section class="panel reveal-on-load">
+        <div class="panel-head">
+            <h3>Nouvelle formation</h3>
+            <span class="panel-kicker">Creation du catalogue</span>
+        </div>
+        <form method="post" class="stack-md">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.titre.label(class_='form-label') }}
+                {{ form.titre(class_='form-control', placeholder='Ex. Python avance') }}
+            </div>
+            <div class="form-group">
+                {{ form.description.label(class_='form-label') }}
+                {{ form.description(class_='form-control', rows='5', placeholder='Decrivez les objectifs et le contenu...') }}
+            </div>
+            <div class="form-group">
+                {{ form.organisme.label(class_='form-label') }}
+                {{ form.organisme(class_='form-control', placeholder='Nom de l organisme') }}
+            </div>
+            {{ form.submit(class_='btn btn-primary') }}
+        </form>
+    </section>
+
+    <section class="panel reveal-on-load">
+        <div class="panel-head">
+            <h3>Formations existantes</h3>
+            <span class="panel-kicker">Acces aux sessions</span>
+        </div>
+        <div class="stack-md">
+            {% for training in trainings %}
+            <article class="training-list-card">
+                <div>
+                    <h4>{{ training.titre }}</h4>
+                    <p>{{ training.organisme }}</p>
+                </div>
+                <a class="btn btn-secondary btn-sm" href="{{ url_for('manager.sessions', training_id=training.id) }}">Gerer les sessions</a>
+            </article>
+            {% else %}
+            <div class="empty-state">Aucune formation enregistree.</div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

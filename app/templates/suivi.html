@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Suivi{% endblock %}
+{% block hero_title %}Suivez l'etat de vos demandes{% endblock %}
+{% block hero_copy %}Gardez une lecture simple des validations et des dates de creation pour chaque demande envoyee.{% endblock %}
+{% block content %}
+<section class="panel reveal-on-load">
+    <div class="panel-head">
+        <h3>Historique des demandes</h3>
+        <span class="panel-kicker">{{ requests|length }} element(s)</span>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <tr><th>ID</th><th>Formation</th><th>Statut</th><th>Date</th></tr>
+            {% for req in requests %}
+            <tr>
+                <td>#{{ req.id }}</td>
+                <td>{{ req.training.titre if req.training else 'A definir' }}</td>
+                <td><span class="badge badge-{{ req.statut|lower }}">{{ req.statut }}</span></td>
+                <td>{{ req.date_creation.strftime('%Y-%m-%d') }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" class="empty-state">Aucune demande n'a ete creee.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</section>
+{% endblock %}

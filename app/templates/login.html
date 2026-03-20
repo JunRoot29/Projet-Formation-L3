@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Connexion{% endblock %}
+{% block content %}
+<section class="auth-layout reveal-on-load">
+    <div class="auth-card auth-card-highlight">
+        <p class="eyebrow">Portail formation</p>
+        <h1>Connectez-vous a votre espace</h1>
+        <p>Suivez les demandes, attribuez les sessions et gardez une vue claire sur le cycle de formation.</p>
+        <div class="auth-demo">
+            <div>
+                <span>Manager</span>
+                <strong>manager@company.com</strong>
+            </div>
+            <div>
+                <span>Employe</span>
+                <strong>employee@company.com</strong>
+            </div>
+            <div>
+                <span>Mot de passe</span>
+                <strong>password</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-card">
+        <h2>Connexion</h2>
+        <form method="post" class="stack-md">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.email.label(class_='form-label') }}
+                {{ form.email(class_='form-control', placeholder='vous@entreprise.com') }}
+            </div>
+            <div class="form-group">
+                {{ form.password.label(class_='form-label') }}
+                {{ form.password(class_='form-control', placeholder='Votre mot de passe') }}
+            </div>
+            {{ form.submit(class_='btn btn-primary btn-block') }}
+        </form>
+    </div>
+</section>
+{% endblock %}

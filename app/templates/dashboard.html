@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard Employe{% endblock %}
+{% block hero_title %}Vos demandes de formation en un coup d'oeil{% endblock %}
+{% block hero_copy %}Consultez l'avancement, choisissez une session et finalisez votre parcours sans naviguer entre plusieurs ecrans disperses.{% endblock %}
+{% block content %}
+<section class="section-head reveal-on-load">
+    <div>
+        <p class="eyebrow">Espace employe</p>
+        <h2>Tableau de bord</h2>
+    </div>
+    <div class="inline-actions">
+        <a class="btn btn-secondary" href="{{ url_for('employee.catalogue') }}">Explorer le catalogue</a>
+        <a class="btn btn-ghost" href="{{ url_for('employee.suivi') }}">Voir le suivi</a>
+    </div>
+</section>
+
+<section class="stats-grid reveal-on-load">
+    <article class="stat-card">
+        <span>Demandes creees</span>
+        <strong>{{ requests|length }}</strong>
+    </article>
+    <article class="stat-card">
+        <span>Inscriptions actives</span>
+        <strong>{{ enrollments|selectattr('statut', 'equalto', 'REGISTERED')|list|length }}</strong>
+    </article>
+    <article class="stat-card">
+        <span>Formations terminees</span>
+        <strong>{{ enrollments|selectattr('statut', 'equalto', 'COMPLETED')|list|length }}</strong>
+    </article>
+</section>
+
+<div class="content-grid two-columns">
+    <section class="panel reveal-on-load">
+        <div class="panel-head">
+            <h3>Mes demandes</h3>
+            <span class="panel-kicker">Validation et attribution</span>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <tr><th>ID</th><th>Formation</th><th>Statut</th><th>Creee</th><th>Action</th></tr>
+                {% for req in requests %}
+                <tr>
+                    <td>#{{ req.id }}</td>
+                    <td>{{ req.training.titre if req.training else 'A definir' }}</td>
+                    <td><span class="badge badge-{{ req.statut|lower }}">{{ req.statut }}</span></td>
+                    <td>{{ req.date_creation.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        {% if req.statut == 'APPROVED' and not req.enrollment %}
+                        <a class="btn btn-primary btn-sm" href="{{ url_for('employee.choisir_session', request_id=req.id) }}">Choisir une session</a>
+                        {% else %}
+                        <span class="muted">Aucune action</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="empty-state">Aucune demande pour le moment.</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </section>
+
+    <section class="panel reveal-on-load">
+        <div class="panel-head">
+            <h3>Mes inscriptions</h3>
+            <span class="panel-kicker">Actions rapides</span>
+        </div>
+        <div class="stack-md">
+            {% for en in enrollments %}
+            <article class="enrollment-card">
+                <div>
+                    <h4>{{ en.session.training.titre }}</h4>
+                    <p>{{ en.session.date }} a {{ en.session.lieu }}</p>
+                    <span class="badge badge-{{ en.statut|lower }}">{{ en.statut }}</span>
+                </div>
+                <div class="inline-actions wrap-actions">
+                    {% if en.statut == 'REGISTERED' %}
+                    <form method="post" action="{{ url_for('employee.completion', enrollment_id=en.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-secondary btn-sm" type="submit">Marquer comme terminee</button>
+                    </form>
+                    <form method="post" action="{{ url_for('employee.annuler', enrollment_id=en.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-danger btn-sm" type="submit">Annuler</button>
+                    </form>
+                    {% elif en.statut == 'COMPLETED' %}
+                    <a class="btn btn-primary btn-sm" href="{{ url_for('employee.feedback', training_id=en.session.training.id) }}">Donner un feedback</a>
+                    {% else %}
+                    <span class="muted">Aucune action disponible</span>
+                    {% endif %}
+                </div>
+            </article>
+            {% else %}
+            <div class="empty-state">Aucune inscription en cours.</div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard Manager{% endblock %}
+{% block hero_title %}Pilotez les demandes et les validations depuis un seul tableau de bord{% endblock %}
+{% block hero_copy %}Attribuez les formations, inscrivez les collaborateurs sur les sessions et suivez les factures sans friction.{% endblock %}
+{% block content %}
+<section class="section-head reveal-on-load">
+    <div>
+        <p class="eyebrow">Espace manager</p>
+        <h2>Vue d'ensemble</h2>
+    </div>
+    <div class="inline-actions">
+        <a class="btn btn-secondary" href="{{ url_for('manager.catalogue_manager') }}">Gerer le catalogue</a>
+    </div>
+</section>
+
+<section class="stats-grid reveal-on-load">
+    <article class="stat-card stat-accent">
+        <span>Demandes en attente</span>
+        <strong>{{ stats.pending }}</strong>
+    </article>
+    <article class="stat-card">
+        <span>Demandes approuvees</span>
+        <strong>{{ stats.approved }}</strong>
+    </article>
+    <article class="stat-card">
+        <span>Demandes rejetees</span>
+        <strong>{{ stats.rejected }}</strong>
+    </article>
+    <article class="stat-card">
+        <span>Factures a verifier</span>
+        <strong>{{ invoices|selectattr('statut', 'equalto', 'PENDING')|list|length }}</strong>
+    </article>
+</section>
+
+<section class="panel reveal-on-load">
+    <div class="panel-head">
+        <h3>Demandes collaborateurs</h3>
+        <span class="panel-kicker">Affectation et inscription</span>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <tr><th>ID</th><th>Employe</th><th>Formation</th><th>Statut</th><th>Actions</th></tr>
+            {% for req in requests %}
+            <tr>
+                <td>#{{ req.id }}</td>
+                <td>{{ req.employee.nom }}</td>
+                <td>{{ req.training.titre if req.training else 'Non defini' }}</td>
+                <td><span class="badge badge-{{ req.statut|lower }}">{{ req.statut }}</span></td>
+                <td>
+                    <div class="stack-sm">
+                        {% if req.statut == 'PENDING' %}
+                        <form method="post" action="{{ url_for('manager.approve', request_id=req.id) }}" class="inline-form wrap-actions">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <select name="training_id" class="form-control form-control-inline">
+                                <option value="">-- Choisir formation --</option>
+                                {% for t in trainings %}
+                                <option value="{{ t.id }}" {% if req.training_id == t.id %}selected{% endif %}>{{ t.titre }}</option>
+                                {% endfor %}
+                            </select>
+                            <button class="btn btn-primary btn-sm" type="submit">Approuver</button>
+                        </form>
+                        <form method="post" action="{{ url_for('manager.reject', request_id=req.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button class="btn btn-danger btn-sm" type="submit">Rejeter</button>
+                        </form>
+                        {% elif req.statut == 'APPROVED' and req.training and not req.enrollment %}
+                        <form method="post" action="{{ url_for('manager.inscrire', request_id=req.id) }}" class="inline-form wrap-actions">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <select name="session_id" class="form-control form-control-inline">
+                                <option value="">-- Choisir session --</option>
+                                {% for s in sessions if s.training_id == req.training_id %}
+                                <option value="{{ s.id }}">{{ s.date }} - {{ s.lieu }}</option>
+                                {% endfor %}
+                            </select>
+                            <button class="btn btn-secondary btn-sm" type="submit">Inscrire</button>
+                        </form>
+                        {% elif req.enrollment %}
+                        <span class="muted">Session deja attribuee</span>
+                        {% else %}
+                        <span class="muted">Aucune action disponible</span>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="empty-state">Aucune demande enregistree.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</section>
+
+<section class="panel reveal-on-load">
+    <div class="panel-head">
+        <h3>Factures</h3>
+        <span class="panel-kicker">Verification administrative</span>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <tr><th>ID</th><th>Formation</th><th>Montant</th><th>Statut</th><th>Action</th></tr>
+            {% for inv in invoices %}
+            <tr>
+                <td>#{{ inv.id }}</td>
+                <td>{{ inv.training.titre }}</td>
+                <td>{{ '%.2f'|format(inv.montant) }} EUR</td>
+                <td><span class="badge badge-{{ inv.statut|lower }}">{{ inv.statut }}</span></td>
+                <td>
+                    {% if inv.statut == 'PENDING' %}
+                    <form method="post" action="{{ url_for('manager.verify_invoice', invoice_id=inv.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-primary btn-sm" type="submit">Verifier</button>
+                    </form>
+                    {% else %}
+                    <span class="muted">Deja traitee</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="empty-state">Aucune facture disponible.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</section>
+{% endblock %}

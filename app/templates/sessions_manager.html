@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Sessions{% endblock %}
+{% block hero_title %}Planifiez les sessions pour {{ training.titre }}{% endblock %}
+{% block hero_copy %}Ajoutez les dates, lieux et capacites pour rendre la formation directement inscriptible.{% endblock %}
+{% block content %}
+<div class="content-grid two-columns">
+    <section class="panel reveal-on-load">
+        <div class="panel-head">
+            <h3>Ajouter une session</h3>
+            <span class="panel-kicker">{{ training.organisme }}</span>
+        </div>
+        <form method="post" class="stack-md">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.date.label(class_='form-label') }}
+                {{ form.date(class_='form-control') }}
+            </div>
+            <div class="form-group">
+                {{ form.lieu.label(class_='form-label') }}
+                {{ form.lieu(class_='form-control', placeholder='Ville ou site') }}
+            </div>
+            <div class="form-group">
+                {{ form.capacite.label(class_='form-label') }}
+                {{ form.capacite(class_='form-control', placeholder='Nombre de places') }}
+            </div>
+            {{ form.submit(class_='btn btn-primary') }}
+        </form>
+    </section>
+
+    <section class="panel reveal-on-load">
+        <div class="panel-head">
+            <h3>Sessions existantes</h3>
+            <span class="panel-kicker">{{ training.sessions|length }} session(s)</span>
+        </div>
+        <div class="stack-md">
+            {% for s in training.sessions %}
+            <article class="training-list-card">
+                <div>
+                    <h4>{{ s.date }}</h4>
+                    <p>{{ s.lieu }}</p>
+                </div>
+                <span class="tag">{{ s.capacite }} places</span>
+            </article>
+            {% else %}
+            <div class="empty-state">Aucune session planifiee.</div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FormationPro{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="page-shell">
+        <header class="site-header">
+            <nav class="navbar">
+                <a class="brand" href="{{ url_for('auth.index') }}">
+                    <span class="brand-mark">FP</span>
+                    <span>
+                        <strong>FormationPro</strong>
+                        <small>Pilotage des parcours</small>
+                    </span>
+                </a>
+                <div class="nav-links">
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.role == 'MANAGER' %}
+                            <a href="{{ url_for('manager.dashboard') }}">Vue manager</a>
+                            <a href="{{ url_for('manager.catalogue_manager') }}">Catalogue</a>
+                        {% else %}
+                            <a href="{{ url_for('employee.dashboard') }}">Mon espace</a>
+                            <a href="{{ url_for('employee.catalogue') }}">Catalogue</a>
+                            <a href="{{ url_for('employee.suivi') }}">Suivi</a>
+                        {% endif %}
+                        <a class="nav-pill" href="{{ url_for('auth.logout') }}">Deconnexion</a>
+                    {% else %}
+                        <a class="nav-pill" href="{{ url_for('auth.login') }}">Connexion</a>
+                    {% endif %}
+                </div>
+            </nav>
+
+            {% if current_user.is_authenticated %}
+            <section class="hero hero-compact reveal-on-load">
+                <div>
+                    <p class="eyebrow">Plateforme interne</p>
+                    <h1>{% block hero_title %}Centralisez vos demandes, sessions et validations{% endblock %}</h1>
+                    <p class="hero-copy">{% block hero_copy %}Un espace plus lisible pour fluidifier le suivi des formations cote employe comme cote manager.{% endblock %}</p>
+                </div>
+                <div class="hero-panel">
+                    <span class="hero-panel-label">Connecte en tant que</span>
+                    <strong>{{ current_user.nom }}</strong>
+                    <span>{{ 'Responsable formation' if current_user.role == 'MANAGER' else 'Employe' }}</span>
+                </div>
+            </section>
+            {% endif %}
+        </header>
+
+        <main class="container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages reveal-on-load">
+                        {% for category, message in messages %}
+                            <div class="flash {{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
