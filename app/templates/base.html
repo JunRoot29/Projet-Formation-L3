@@ -32,6 +32,7 @@
                         {% endif %}
                         <a class="nav-pill" href="{{ url_for('auth.logout') }}">Deconnexion</a>
                     {% else %}
+                        <a href="{{ url_for('auth.register') }}">Creer un compte</a>
                         <a class="nav-pill" href="{{ url_for('auth.login') }}">Connexion</a>
                     {% endif %}
                 </div>

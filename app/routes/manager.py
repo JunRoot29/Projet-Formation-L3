@@ -1,9 +1,9 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 from app import db
-from app.models import TrainingRequest, Training, Session, Invoice
-from app.forms import TrainingForm, SessionForm
-from app.services import approve_request, reject_request, register_employee, cancel_enrollment
+from app.forms import AdminUserForm, SessionForm, TrainingForm
+from app.models import Invoice, Session, Training, TrainingRequest, User
+from app.services import approve_request, cancel_enrollment, register_employee, reject_request
 from app.utils.security import role_required
 
 manager_bp = Blueprint("manager", __name__)
@@ -17,12 +17,51 @@ def dashboard():
     invoices = Invoice.query.all()
     trainings = Training.query.all()
     sessions = Session.query.all()
+    users = User.query.order_by(User.role.desc(), User.nom.asc()).all()
+    user_form = AdminUserForm()
     stats = {
         "pending": TrainingRequest.query.filter_by(statut="PENDING").count(),
         "approved": TrainingRequest.query.filter_by(statut="APPROVED").count(),
         "rejected": TrainingRequest.query.filter_by(statut="REJECTED").count(),
     }
-    return render_template("dashboard_manager.html", requests=requests, invoices=invoices, stats=stats, trainings=trainings, sessions=sessions)
+    return render_template(
+        "dashboard_manager.html",
+        requests=requests,
+        invoices=invoices,
+        stats=stats,
+        trainings=trainings,
+        sessions=sessions,
+        users=users,
+        user_form=user_form,
+    )
+
+
+@manager_bp.route("/users", methods=["POST"])
+@login_required
+@role_required("MANAGER")
+def create_or_recreate_user():
+    form = AdminUserForm()
+    if not form.validate_on_submit():
+        for field_errors in form.errors.values():
+            for error in field_errors:
+                flash(error, "danger")
+        return redirect(url_for("manager.dashboard"))
+
+    email = form.email.data.strip().lower()
+    user = User.query.filter_by(email=email).first()
+    created = user is None
+
+    if created:
+        user = User(email=email)
+        db.session.add(user)
+
+    user.nom = form.nom.data.strip()
+    user.role = form.role.data
+    user.set_password(form.password.data)
+    db.session.commit()
+
+    flash("Compte cree." if created else "Compte recree et mot de passe reinitialise.", "success")
+    return redirect(url_for("manager.dashboard"))
 
 
 @manager_bp.route("/requests/<int:request_id>/approve", methods=["POST"])

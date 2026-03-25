@@ -5,7 +5,7 @@
     <div class="auth-card auth-card-highlight">
         <p class="eyebrow">Portail formation</p>
         <h1>Connectez-vous a votre espace</h1>
-        <p>Suivez les demandes, attribuez les sessions et gardez une vue claire sur le cycle de formation.</p>
+        <p>Accedez a votre suivi de formation ou a la console manager avec votre email et votre mot de passe.</p>
         <div class="auth-demo">
             <div>
                 <span>Manager</span>
@@ -36,6 +36,7 @@
             </div>
             {{ form.submit(class_='btn btn-primary btn-block') }}
         </form>
+        <p class="muted">Pas encore de compte ? <a href="{{ url_for('auth.register') }}">Creer un compte employe</a></p>
     </div>
 </section>
 {% endblock %}

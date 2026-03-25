@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Creation de compte{% endblock %}
+{% block content %}
+<section class="auth-layout reveal-on-load">
+    <div class="auth-card auth-card-highlight">
+        <p class="eyebrow">Nouveau collaborateur</p>
+        <h1>Creez votre compte</h1>
+        <p>Utilisez votre email professionnel pour ouvrir un compte employe et acceder au catalogue des formations.</p>
+        <div class="auth-demo">
+            <div>
+                <span>Acces</span>
+                <strong>Compte employe</strong>
+            </div>
+            <div>
+                <span>Connexion</span>
+                <strong>Email + mot de passe</strong>
+            </div>
+            <div>
+                <span>Admin</span>
+                <strong>Peut recreer un compte</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-card">
+        <h2>Creation de compte</h2>
+        <form method="post" class="stack-md">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.nom.label(class_='form-label') }}
+                {{ form.nom(class_='form-control', placeholder='Nom et prenom') }}
+            </div>
+            <div class="form-group">
+                {{ form.email.label(class_='form-label') }}
+                {{ form.email(class_='form-control', placeholder='vous@entreprise.com') }}
+            </div>
+            <div class="form-group">
+                {{ form.password.label(class_='form-label') }}
+                {{ form.password(class_='form-control', placeholder='Au moins 6 caracteres') }}
+            </div>
+            <div class="form-group">
+                {{ form.confirm_password.label(class_='form-label') }}
+                {{ form.confirm_password(class_='form-control', placeholder='Retapez le mot de passe') }}
+            </div>
+            {{ form.submit(class_='btn btn-primary btn-block') }}
+        </form>
+        <p class="muted">Vous avez deja un compte ? <a href="{{ url_for('auth.login') }}">Se connecter</a></p>
+    </div>
+</section>
+{% endblock %}

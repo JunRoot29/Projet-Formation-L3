@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Dashboard Manager{% endblock %}
-{% block hero_title %}Pilotez les demandes et les validations depuis un seul tableau de bord{% endblock %}
-{% block hero_copy %}Attribuez les formations, inscrivez les collaborateurs sur les sessions et suivez les factures sans friction.{% endblock %}
+{% block hero_title %}Pilotez les demandes, les validations et les comptes depuis un seul tableau de bord{% endblock %}
+{% block hero_copy %}Attribuez les formations, inscrivez les collaborateurs sur les sessions, verifiez les factures et gerez les comptes d'acces sans quitter le dashboard.{% endblock %}
 {% block content %}
 <section class="section-head reveal-on-load">
     <div>
@@ -27,9 +27,62 @@
         <strong>{{ stats.rejected }}</strong>
     </article>
     <article class="stat-card">
-        <span>Factures a verifier</span>
-        <strong>{{ invoices|selectattr('statut', 'equalto', 'PENDING')|list|length }}</strong>
+        <span>Comptes total</span>
+        <strong>{{ users|length }}</strong>
     </article>
+</section>
+
+<section class="panel reveal-on-load">
+    <div class="panel-head">
+        <h3>Comptes utilisateurs</h3>
+        <span class="panel-kicker">Creation, recreation et reinitialisation</span>
+    </div>
+    <div class="auth-layout">
+        <div class="auth-card">
+            <h2>Creer ou recreer un compte</h2>
+            <form method="post" action="{{ url_for('manager.create_or_recreate_user') }}" class="stack-md">
+                {{ user_form.hidden_tag() }}
+                <div class="form-group">
+                    {{ user_form.nom.label(class_='form-label') }}
+                    {{ user_form.nom(class_='form-control', placeholder='Nom et prenom') }}
+                </div>
+                <div class="form-group">
+                    {{ user_form.email.label(class_='form-label') }}
+                    {{ user_form.email(class_='form-control', placeholder='utilisateur@entreprise.com') }}
+                </div>
+                <div class="form-group">
+                    {{ user_form.password.label(class_='form-label') }}
+                    {{ user_form.password(class_='form-control', placeholder='Nouveau mot de passe') }}
+                </div>
+                <div class="form-group">
+                    {{ user_form.role.label(class_='form-label') }}
+                    {{ user_form.role(class_='form-control') }}
+                </div>
+                {{ user_form.submit(class_='btn btn-primary btn-block') }}
+            </form>
+            <p class="muted">Si l'email existe deja, ce formulaire recree le compte en remettant a jour le nom, le role et le mot de passe.</p>
+        </div>
+        <div class="auth-card auth-card-highlight">
+            <p class="eyebrow">Acces</p>
+            <h2>Comptes actifs</h2>
+            <div class="table-wrap">
+                <table>
+                    <tr><th>Nom</th><th>Email</th><th>Role</th></tr>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.nom }}</td>
+                        <td>{{ user.email }}</td>
+                        <td><span class="badge badge-approved">{{ user.role }}</span></td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="empty-state">Aucun compte disponible.</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
 </section>
 
 <section class="panel reveal-on-load">
